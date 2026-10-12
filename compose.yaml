@@ -1,0 +1,28 @@
+services:
+  napcat:
+    image: mlikiowa/napcat-docker:latest
+    container_name: napcat
+    restart: always
+    network_mode: host
+    extra_hosts:
+      - "astrbot:127.0.0.1"
+    environment:
+      - NAPCAT_UID=${NAPCAT_UID:-1000}
+      - NAPCAT_GID=${NAPCAT_GID:-1000}
+      - MODE=astrbot
+      - WEBUI_TOKEN=${WEBUI_TOKEN:?set WEBUI_TOKEN in .env}
+    volumes:
+      - ./data:/AstrBot/data
+      - ./napcat/config:/app/napcat/config
+      - ./ntqq:/app/.config/QQ
+
+  astrbot:
+    image: soulter/astrbot:latest
+    container_name: astrbot
+    restart: always
+    network_mode: host
+    environment:
+      - TZ=Asia/Shanghai
+      - ASTRBOT_DASHBOARD_INITIAL_PASSWORD=${ASTRBOT_PASSWORD:?set ASTRBOT_PASSWORD in .env}
+    volumes:
+      - ./data:/AstrBot/data
