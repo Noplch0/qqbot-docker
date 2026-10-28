@@ -5,9 +5,19 @@ services:
     image: soulter/astrbot:latest
     container_name: astrbot
     restart: always
-    network_mode: host
     environment:
       - TZ=Asia/Shanghai
       - ASTRBOT_DASHBOARD_INITIAL_PASSWORD=${ASTRBOT_PASSWORD:?set ASTRBOT_PASSWORD in .env}
+    ports:
+      - "${ASTRBOT_DASHBOARD_PORT:-6185}:6185"
+      # OneBot 反向 WS 服务端，只对宿主机开放（供 host 网络模式的客户端接入）
+      - "127.0.0.1:${ASTRBOT_ONEBOT_PORT:-6199}:6199"
+    networks:
+      - qqbot
     volumes:
       - ./data:/AstrBot/data
+
+networks:
+  qqbot:
+    name: qqbot
+    external: true

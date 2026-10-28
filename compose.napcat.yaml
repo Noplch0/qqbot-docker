@@ -5,15 +5,21 @@ services:
     image: mlikiowa/napcat-docker:latest
     container_name: napcat
     restart: always
-    network_mode: host
-    extra_hosts:
-      - "astrbot:127.0.0.1"
     environment:
       - NAPCAT_UID=${NAPCAT_UID:-1000}
       - NAPCAT_GID=${NAPCAT_GID:-1000}
       - MODE=astrbot
       - WEBUI_TOKEN=${WEBUI_TOKEN:?set WEBUI_TOKEN in .env}
+    ports:
+      - "${NAPCAT_WEBUI_PORT:-6099}:6099"
+    networks:
+      - qqbot
     volumes:
       - ./data:/AstrBot/data
       - ./napcat/config:/app/napcat/config
       - ./ntqq:/app/.config/QQ
+
+networks:
+  qqbot:
+    name: qqbot
+    external: true
