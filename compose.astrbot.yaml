@@ -1,0 +1,13 @@
+name: astrbot
+
+services:
+  astrbot:
+    image: soulter/astrbot:latest
+    container_name: astrbot
+    restart: always
+    network_mode: host
+    environment:
+      - TZ=Asia/Shanghai
+      - ASTRBOT_DASHBOARD_INITIAL_PASSWORD=${ASTRBOT_PASSWORD:?set ASTRBOT_PASSWORD in .env}
+    volumes:
+      - ./data:/AstrBot/data
