@@ -5,6 +5,8 @@ services:
     image: ${SNOWLUMA_IMAGE:-motricseven7/snowluma:latest}
     container_name: ${SNOWLUMA_CONTAINER:-snowluma}
     restart: unless-stopped
+    # host 网络：容器内 127.0.0.1 即宿主机回环，可直接访问宿主机上的服务
+    network_mode: host
     # QQ 基于 Chromium，/dev/shm 太小会崩；多开建议调到 2gb
     shm_size: ${SNOWLUMA_SHM_SIZE:-1gb}
     ulimits:
@@ -16,9 +18,9 @@ services:
       - SYS_PTRACE
     security_opt:
       - seccomp=unconfined
-    # 兼容老版本 Docker；优先用服务名 astrbot 直连
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "astrbot:127.0.0.1"
+      - "host.docker.internal:127.0.0.1"
     environment:
       TZ: ${TZ:-Asia/Shanghai}
       # 远程桌面(noVNC)密码：留空则首次启动随机生成，只在日志打印一次
@@ -33,14 +35,6 @@ services:
       SNOWLUMA_HOOK_AUTOLOAD: ${SNOWLUMA_HOOK_AUTOLOAD:-1}
       SNOWLUMA_EXTRA_QQ_HOMES: "${SNOWLUMA_EXTRA_QQ_HOMES:-}"
       SNOWLUMA_QQ_FLAGS: "${SNOWLUMA_QQ_FLAGS:---disable-gpu --disable-software-rasterizer --disable-gpu-compositing}"
-    ports:
-      # BIND_ADDR 控制对外监听地址：0.0.0.0 局域网可访问，127.0.0.1 仅本机
-      - "${BIND_ADDR:-0.0.0.0}:${NOVNC_PORT:-6081}:6081"
-      - "${BIND_ADDR:-0.0.0.0}:${SNOWLUMA_WEBUI_HOST_PORT:-5099}:${SNOWLUMA_WEBUI_PORT:-5099}"
-      - "${BIND_ADDR:-0.0.0.0}:${ONEBOT_HTTP_PORT:-3000}:3000"
-      - "${BIND_ADDR:-0.0.0.0}:${ONEBOT_WS_PORT:-3001}:3001"
-    networks:
-      - qqbot
     volumes:
       - qq-gateway-data:/app/data
       - qq-client-config:/app/.config
@@ -53,8 +47,3 @@ volumes:
     name: qq-client-config
   qq-client-data:
     name: qq-client-data
-
-networks:
-  qqbot:
-    name: qqbot
-    external: true
